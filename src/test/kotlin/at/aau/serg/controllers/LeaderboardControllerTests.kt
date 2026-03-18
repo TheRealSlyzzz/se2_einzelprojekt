@@ -28,7 +28,7 @@ class LeaderboardControllerTests {
 
         whenever(mockedService.getGameResults()).thenReturn(listOf(second, first, third))
 
-        val res: List<GameResult> = controller.getLeaderboard()
+        val res: List<GameResult> = controller.getLeaderboard(null)
 
         //Reihenfolge nach Time
         verify(mockedService).getGameResults()
@@ -46,7 +46,7 @@ class LeaderboardControllerTests {
 
         whenever(mockedService.getGameResults()).thenReturn(listOf(second, first, third))
 
-        val res: List<GameResult> = controller.getLeaderboard()
+        val res: List<GameResult> = controller.getLeaderboard(null)
 
         //Reihenfolge nach Time
         verify(mockedService).getGameResults()
@@ -54,6 +54,51 @@ class LeaderboardControllerTests {
         assertEquals(second, res[0])
         assertEquals(third, res[1])
         assertEquals(first, res[2])
+    }
+
+    //Test wenn kein Rank übergeben wird
+    @Test
+    fun test_getLeaderboard_noRank_returnsFullList() {
+        val a = GameResult(1, "a", 30, 30.0)
+        val b = GameResult(2, "b", 20, 20.0)
+
+        whenever(mockedService.getGameResults()).thenReturn(listOf(b, a))
+
+        val res = controller.getLeaderboard(null)
+
+        assertEquals(2, res.size)
+        assertEquals(a, res[0])
+        assertEquals(b, res[1])
+    }
+
+    @Test
+    fun test_getLeaderboard_withRank_returnsNeighborhood() {
+        val list = (1..10).map {
+            GameResult(it.toLong(), "p$it", 100 - it, it.toDouble())
+        }
+
+        whenever(mockedService.getGameResults()).thenReturn(list)
+
+        val res = controller.getLeaderboard(5)
+
+        // index 4 → von 1 bis 7 (±3)
+        assertEquals(7, res.size)
+    }
+
+    //Test wenn ungültiger Rank übergeben wird
+    @Test
+    fun test_getLeaderboard_invalidRank_throwsException() {
+        val list = listOf(GameResult(1, "a", 10, 10.0))
+        whenever(mockedService.getGameResults()).thenReturn(list)
+
+        try {
+            controller.getLeaderboard(0)
+        } catch (e: Exception) {
+            assert(e is org.springframework.web.server.ResponseStatusException)
+            return
+        }
+
+        throw AssertionError("Exception expected")
     }
 
 }
