@@ -101,4 +101,30 @@ class LeaderboardControllerTests {
         throw AssertionError("Exception expected")
     }
 
+    @Test
+    fun test_getLeaderboard_rankAtStart() {
+        val list = (1..5).map {
+            GameResult(it.toLong(), "p$it", 100 - it, it.toDouble())
+        }
+
+        whenever(mockedService.getGameResults()).thenReturn(list)
+
+        val res = controller.getLeaderboard(1)
+
+        assertEquals(4, res.size) // nur nach unten möglich
+    }
+
+    @Test
+    fun test_getLeaderboard_rankAtEnd() {
+        val list = (1..5).map {
+            GameResult(it.toLong(), "p$it", 100 - it, it.toDouble())
+        }
+
+        whenever(mockedService.getGameResults()).thenReturn(list)
+
+        val res = controller.getLeaderboard(5)
+
+        assertEquals(4, res.size) // nur nach oben möglich
+    }
+
 }
