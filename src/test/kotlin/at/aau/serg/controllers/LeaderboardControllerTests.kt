@@ -33,9 +33,26 @@ class LeaderboardControllerTests {
         //Reihenfolge nach Time
         verify(mockedService).getGameResults()
         assertEquals(3, res.size)
-        assertEquals(second, res[0])
-        assertEquals(third, res[1])
-        assertEquals(first, res[2])
+        assertEquals(first, res[0])
+        assertEquals(second, res[1])
+        assertEquals(third, res[2])
+    }
+
+    //Test for same score sorting
+    @Test
+    fun test_getLeaderboard_sameScore_sortedByTime() {
+        val a = GameResult(1, "a", 50, 30.0)
+        val b = GameResult(2, "b", 50, 10.0)
+        val c = GameResult(3, "c", 50, 20.0)
+
+        whenever(mockedService.getGameResults()).thenReturn(listOf(a, b, c))
+
+        val res = controller.getLeaderboard(null)
+
+        // same score → time ascending
+        assertEquals(b, res[0]) // 10s
+        assertEquals(c, res[1]) // 20s
+        assertEquals(a, res[2]) // 30s
     }
 
     @Test
